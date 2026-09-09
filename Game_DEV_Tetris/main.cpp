@@ -7,7 +7,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode({ 320, 480 }), "SFML window");
 
     sf::Texture t;
-    t.loadFromFile("");
+    t.loadFromFile("images/tiles.png");
 
     sf::Sprite sprite(t);
 

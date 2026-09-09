@@ -34,12 +34,22 @@ int main()
 
     int dx = 0; bool rotate = 0; int colorNum = 1;
 
+    float timer = 0, delay = 0.3;
+
+    sf::Clock clock;
+
     // Start the game loop
     while (window.isOpen())
     {
         // Process events
         while (const std::optional event = window.pollEvent())
         {
+
+            float time = clock.getElapsedTime().asSeconds();
+            clock.restart();
+            timer += time;
+
+
             // Close window: exit
             if (event->is<sf::Event::Closed>())
                 window.close();
@@ -65,6 +75,12 @@ int main()
                 }
             }
                     
+        }
+
+        ////// Tick /////
+        if (timer > delay) {
+            for (int i = 0;i < 4;i++) a[i].y += 1;
+            timer = 0;
         }
 
         int n = 3;

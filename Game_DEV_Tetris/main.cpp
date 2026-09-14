@@ -23,8 +23,8 @@ int figures[7][4] =
 
 bool check() 
 {
-    for (int i = 1;i < 4;i++)
-        if (a[i].x<0 || a[i].x>N || a[i].y >= M) return 0;
+    for (int i = 0;i < 4;i++)
+        if (a[i].x < 0 || a[i].x >= N || a[i].y >= M) return 0;
         else if (field[a[i].y][a[i].x]) return 0;
     return 1;
 }
@@ -38,11 +38,13 @@ int main()
     sf::RenderWindow window(sf::VideoMode({ 320, 480 }), "SFML window");
 
     //--------------------------TEXTURE--------------------------
-    sf::Texture t;
-    t.loadFromFile("images/tiles.png");
+    sf::Texture t1 ,t2 , t3;
+    t1.loadFromFile("images/tiles.png");
+    t2.loadFromFile("images/background.png");
+    t3.loadFromFile("images/frame.png");
 
     //-----------------------TILE DE TEXTURA --------------------
-    sf::Sprite sprite(t);
+    sf::Sprite sprite(t1), background(t2) , frame(t3);
     sprite.setTextureRect(sf::IntRect({ 0, 0 }, { 18, 18 }));
 
     int dx = 0; bool rotate = 0; int colorNum = 1;
@@ -51,18 +53,21 @@ int main()
 
     sf::Clock clock;
 
+    colorNum = 1 + rand() % 7;
+    int n = rand() % 7;
+    for (int i = 0; i < 4; i++)
+    {
+        a[i].x = figures[n][i] % 2;
+        a[i].y = figures[n][i] / 2;
+    }
+
     // Start the game loop
     while (window.isOpen())
     {
         // Process events
         while (const std::optional event = window.pollEvent())
         {
-            //---------------------------------TIMER--------------------------------
-            float time = clock.getElapsedTime().asSeconds();
-            clock.restart();
-            timer += time;
-
-
+            
             // Close window: exit
             if (event->is<sf::Event::Closed>())
                 window.close();
@@ -79,9 +84,14 @@ int main()
                     
         }
 
-        ///// Move /////
-        for (int i = 0; i < 4;i++)  a[i].x += dx;
+        //---------------------------------TIMER--------------------------------
+        float time = clock.getElapsedTime().asSeconds();
+        clock.restart();
+        timer += time;
 
+
+        ///// Move /////
+        
         for (int i = 0;i < 4;i++) { b[i] = a[i]; a[i].x += dx; }
 
         if (!check()) for (int i = 0;i < 4;i++) a[i] = b[i];
@@ -119,11 +129,24 @@ int main()
             timer = 0;
         }
 
+        ////// CHECKEO DE LINEAS //////
+        int k = M - 1;
+        for (int i = M - 1;i > 0;i--) 
+        {
+            int count = 0;
+            for (int j = 0; j < N;j++) 
+            {
+                if (field[i][j]) count++;
+                field[k][j] = field[i][j];
+            }
+            if (count < N) k--;
+        }
 
         dx = 0; rotate = 0; delay = 0.3f;
 
         ////// DRAW /////// 
         window.clear(sf::Color::White);
+        window.draw(background);
 
         for (int i = 0;i<M;i++)
             for (int j = 0;j < N;j++) 
@@ -131,6 +154,7 @@ int main()
                 if (field[i][j] == 0) continue;
                 sprite.setTextureRect(sf::IntRect({ field[i][j] * 18, 0 }, { 18, 18 }));
                 sprite.setPosition({ j * 18.f, i * 18.f });
+                sprite.move({ 28.f, 31.f });
                 window.draw(sprite);
             }
 
@@ -140,9 +164,11 @@ int main()
         {
             sprite.setTextureRect(sf::IntRect({ colorNum * 18, 0 }, { 18, 18 }));
             sprite.setPosition({ a[i].x * 18.f, a[i].y * 18.f });
+            sprite.move({ 28.f, 31.f });
             window.draw(sprite);
         }
-       
+
+        window.draw(frame);
         window.display();
     }
 }
